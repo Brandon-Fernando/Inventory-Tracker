@@ -2,9 +2,11 @@
 import Image from "next/image";
 import {useState, useEffect} from 'react';
 import {firestore} from '@/firebase';
-import {Box, Modal, Typography, Stack, TextField, Button, createTheme, ThemeProvider, Divider} from '@mui/material';
+import {Box, Modal, Typography, Stack, TextField, Button, createTheme, ThemeProvider, Divider, FormControl, InputLabel, Select, MenuItem} from '@mui/material';
 import { collection, deleteDoc, getDoc, getDocs, query, setDoc, doc } from "firebase/firestore";
 import Head from 'next/head';
+import { serverTimestamp } from "firebase/firestore";
+
 
 
 
@@ -14,6 +16,7 @@ export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
+  const [filter, setFilter] = useState('newest')
 
   const updateInventory = async () => { //async = it wont block code while fetching
     const snapshot = query(collection(firestore, 'inventory')) //specifies which collection in Firestore to query
@@ -36,10 +39,10 @@ export default function Home() {
 
     if(docSnap.exists()){
       const {quantity} = docSnap.data()
-      await setDoc(docRef, {quantity: quantity + 1})
+      await setDoc(docRef, {quantity: quantity + 1, timestamp: serverTimestamp( )}, {merge: true})
     }
     else{
-      await setDoc(docRef, {quantity: 1})
+      await setDoc(docRef, {quantity: 1, timestamp: serverTimestamp()})
     }
 
     await updateInventory()
@@ -57,7 +60,7 @@ export default function Home() {
         await deleteDoc(docRef)
       }
       else{
-        await setDoc(docRef, {quantity: quantity - 1})
+        await setDoc(docRef, {quantity: quantity - 1, timestamp: serverTimestamp()}, {merge: true})
       }
     }
 
@@ -71,11 +74,44 @@ export default function Home() {
   }, []) 
 
 
+  const getFilteredInventory = () => {
+    let sortedInventory = [...inventory]
+
+    switch (filter) {
+      case 'alphabetical':
+        sortedInventory.sort((a, b) => a.name.localCompare(b.name))
+        break
+    
+      case 'qtyHighLow':
+        sortedInventory.sort((a, b) => b.quantity - a.quantity)
+        break
+      
+      case 'qtyLowHigh':
+        sortedInventory.sort((a, b) => a.quantity - b.quantity)
+        break
+
+      case 'newest':
+        sortedInventory.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis())
+        break
+      
+      case 'oldest':
+        sortedInventory.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis())
+        break
+      
+      default:
+        break
+    }
+
+    return sortedInventory
+      
+  }
  
 
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+
+
 
   return (
     <>
@@ -116,6 +152,7 @@ export default function Home() {
           pb={1}>
           Add Items
           </Typography>
+
           <Divider color="B3B3B3"/>
 
           <Box 
@@ -128,6 +165,7 @@ export default function Home() {
           >
             <Stack width="100%" direction="column" spacing={2} p={5}>
             <TextField 
+              placeholder="Add Item"
               variant='outlined' 
               fullWidth value={itemName} 
               onChange={(e) =>{
@@ -135,7 +173,8 @@ export default function Home() {
               }}
               />
               <Button variant="outlined" 
-              sx={{bgcolor: "#426B1F", borderColor: "#426B1F", color: "white"}}
+              sx={{bgcolor: "#426B1F", borderColor: "#426B1F", color: "white", 
+              '&:hover':{bgcolor: "#76915e", borderColor: "#76915e"}}}
               onClick={()=>{
                 addItem(itemName)
                 setItemName('')
@@ -155,76 +194,47 @@ export default function Home() {
           pb={1}>
           Your Pantry
           </Typography>
+
           <Divider color="B3B3B3"/>
-        </Box>
-        
-        
-        
+          
 
-        
-      </Box>
-      
-    </Box>
-
-
-    
-  
-  
-    
-    <Box width="100vw" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center" gap={2} bgcolor="#FAFAF5">
-      <Box width="800px" height="100px" display="flex" alignItems="center" justifyContent="center">
-          <Typography variant ='h2' color="#333">
-            Inventory Items
-          </Typography>
-        </Box>
-      <Modal open={open} onCLose={handleClose}>
-        <Box position="absolute" top="50%" left="50%" width={400} bgcolor="white" border="2px solid #000000" boxShadow={24} p={4} display="flex" flexDirection="column" gap={3} sx={{transform: "translate(-50%, -50%)"}}>
-          <Typography variant="h6" >Add Item</Typography>
-          <Stack width="100%" direction="row" spacing={2}>
-            <TextField 
-              variant='outlined' 
-              fullWidth value={itemName} 
-              onChange={(e) =>{
-                setItemName(e.target.value)
-              }}
-              />
-              <Button variant="outlined" onClick={()=>{
-                addItem(itemName)
-                setItemName('')
-                handleClose()
-              }}>Add</Button>
-          </Stack>
-        </Box>
-      </Modal>
-      <Button variant = "contained" onClick={() =>{
-        handleOpen()
-      }}
-      >
-        Add New Item
-      </Button>
-      
-      <Box border="1px solid #333">
-        
-      
-      <Stack width= "800px" height= "400px" spacing={2} overflow="auto">
+          <Stack mt={4} height= "500px" spacing={2} overflow="auto" >
         {
           inventory.map(({name, quantity}) => (
-            <Box key={name} width="100%" display="flex" alignItems="center" justifyContent="space-between" bgColor ="#f0f0f0" padding={5} border="1px solid black">
-              <Typography variant="h3" color="#333" textAlign="center">
+            <Box 
+            key={name} 
+            width="100%" 
+            display="flex" 
+            alignItems="center" 
+            justifyContent="space-between" 
+            p={2}
+            border = "1px solid #B3B3B3"
+            borderRadius={3}
+            bgcolor="white">
+            
+              <Typography variant="p" color="#333" textAlign="center">
                 {name.charAt(0).toUpperCase() + name.slice(1)}
               </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
-                {quantity}
+              <Stack direction="row" spacing={2} display="flex" alignItems="center">
+              <Typography variant="p" color="#333" textAlign="center" pr={4}>
+                QTY: <Typography component="span" fontWeight="bold">{quantity}</Typography>
               </Typography>
-              <Stack direction="row" spacing={2}>
-              <Button variant="contained" onClick = {() => {
+              <Button 
+              sx={{bgcolor: "#426B1F", borderColor: "#426B1F", color: "white",
+              '&:hover':{bgcolor: "#76915e", borderColor: "#76915e"} }}
+              variant="outlined" 
+              onClick = {() => {
                 addItem(name)
               }}
               >
                 Add
               </Button>
 
-              <Button variant="contained" onClick = {() => {
+              <Button 
+              sx={{bgcolor: "#000000", borderColor: "#000000", color: "white", 
+              '&:hover':{bgcolor: "#494a48", borderColor: "#494a48"}}} 
+              variant="outlined" 
+              onClick = {() => {
                 removeItem(name)
               }}
               >
@@ -234,6 +244,7 @@ export default function Home() {
             </Box>
           ))}
       </Stack>
+        </Box>
       </Box>
     </Box>
     </>
