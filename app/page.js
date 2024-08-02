@@ -183,6 +183,7 @@ export default function Home() {
 
         {/* pantry list */}
         <Box sx={{flex: 1}}>
+          <Box display="flex" justifyContent="space-between" alignItems="center"> 
           <Typography
           variant="h4" 
           color="#000000" 
@@ -190,20 +191,21 @@ export default function Home() {
           pb={1}>
           Your Pantry
           </Typography>
-            <Box width={200}>
+            <Box width={180}>
              
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ marginTop: -3, bgcolor: "white"}}>
                 <InputLabel>Sort By</InputLabel>
                 <Select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                 >
-                  <MenuItem value="added">Default</MenuItem>
-                  <MenuItem value="alphabetical">Alphabetical Order (A-Z)</MenuItem>
-                  <MenuItem value="qtyHighLow">Quantity High to Low</MenuItem>
-                  <MenuItem value="qtyLowHigh">Quantity Low to High</MenuItem>
+                  <MenuItem value="added">Default (Recent)</MenuItem>
+                  <MenuItem value="alphabetical">(A-Z)</MenuItem>
+                  <MenuItem value="qtyHighLow">QTY: High-Low</MenuItem>
+                  <MenuItem value="qtyLowHigh">QTY: Low-High</MenuItem>
                 </Select>
               </FormControl>
+            </Box>
             </Box>
           <Divider color="B3B3B3"/>
           
