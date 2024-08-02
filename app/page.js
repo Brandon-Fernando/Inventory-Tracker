@@ -5,7 +5,7 @@ import {firestore} from '@/firebase';
 import {Box, Modal, Typography, Stack, TextField, Button, createTheme, ThemeProvider, Divider, FormControl, InputLabel, Select, MenuItem} from '@mui/material';
 import { collection, deleteDoc, getDoc, getDocs, query, setDoc, doc } from "firebase/firestore";
 import Head from 'next/head';
-import { serverTimestamp } from "firebase/firestore";
+
 
 
 
@@ -16,7 +16,7 @@ export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
-  const [filter, setFilter] = useState('newest')
+  const [filter, setFilter] = useState('added')
 
   const updateInventory = async () => { //async = it wont block code while fetching
     const snapshot = query(collection(firestore, 'inventory')) //specifies which collection in Firestore to query
@@ -39,10 +39,10 @@ export default function Home() {
 
     if(docSnap.exists()){
       const {quantity} = docSnap.data()
-      await setDoc(docRef, {quantity: quantity + 1, timestamp: serverTimestamp( )}, {merge: true})
+      await setDoc(docRef, {quantity: quantity + 1, updatedAt: new Date()})
     }
     else{
-      await setDoc(docRef, {quantity: 1, timestamp: serverTimestamp()})
+      await setDoc(docRef, {quantity: 1, createdAt: new Date()})
     }
 
     await updateInventory()
@@ -60,7 +60,7 @@ export default function Home() {
         await deleteDoc(docRef)
       }
       else{
-        await setDoc(docRef, {quantity: quantity - 1, timestamp: serverTimestamp()}, {merge: true})
+        await setDoc(docRef, {quantity: quantity - 1})
       }
     }
 
@@ -78,8 +78,12 @@ export default function Home() {
     let sortedInventory = [...inventory]
 
     switch (filter) {
+      case 'added':
+        sortedInventory.sort((a, b) => b.createdAt?.toDate().getTime() - a.createdAt?.toDate().getTime())
+        break;
+
       case 'alphabetical':
-        sortedInventory.sort((a, b) => a.name.localCompare(b.name))
+        sortedInventory.sort((a, b) => a.name.localeCompare(b.name))
         break
     
       case 'qtyHighLow':
@@ -88,14 +92,6 @@ export default function Home() {
       
       case 'qtyLowHigh':
         sortedInventory.sort((a, b) => a.quantity - b.quantity)
-        break
-
-      case 'newest':
-        sortedInventory.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis())
-        break
-      
-      case 'oldest':
-        sortedInventory.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis())
         break
       
       default:
@@ -194,13 +190,27 @@ export default function Home() {
           pb={1}>
           Your Pantry
           </Typography>
-
+            <Box width={200}>
+             
+              <FormControl fullWidth>
+                <InputLabel>Sort By</InputLabel>
+                <Select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  <MenuItem value="added">Default</MenuItem>
+                  <MenuItem value="alphabetical">Alphabetical Order (A-Z)</MenuItem>
+                  <MenuItem value="qtyHighLow">Quantity High to Low</MenuItem>
+                  <MenuItem value="qtyLowHigh">Quantity Low to High</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
           <Divider color="B3B3B3"/>
           
 
           <Stack mt={4} height= "500px" spacing={2} overflow="auto" >
         {
-          inventory.map(({name, quantity}) => (
+          getFilteredInventory().map(({name, quantity}) => (
             <Box 
             key={name} 
             width="100%" 
