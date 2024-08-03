@@ -12,11 +12,16 @@ import Head from 'next/head';
 
 
 
+
 export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState('')
   const [filter, setFilter] = useState('added')
+  const [recipe, setRecipe] = useState('');
+
+
+
 
   const updateInventory = async () => { //async = it wont block code while fetching
     const snapshot = query(collection(firestore, 'inventory')) //specifies which collection in Firestore to query
@@ -101,6 +106,34 @@ export default function Home() {
     return sortedInventory
       
   }
+
+  
+ 
+  // const generateRecipe = async (items) => {
+  //   try {
+  //     const response = await fetch('/api/generateRecipe', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ items }),
+  //     });
+
+  
+  //     const data = await response.json();
+  //     return data.recipe;
+  //   } catch (error) {
+  //     console.error('Error generating recipe:', error);
+  //     return 'Error generating recipe';
+  //   }
+  // };
+
+  // const handleGenerateRecipe = async () => {
+  //   const items = inventory.map(item => item.name); // Get item names from the inventory
+  //   const generatedRecipe = await generateRecipe(items);
+  //   setRecipe(generatedRecipe);
+  // };
+ 
  
 
 
@@ -258,6 +291,26 @@ export default function Home() {
       </Stack>
         </Box>
       </Box>
+      
+      <Button
+      variant="outlined"
+      onClick={handleGenerateRecipe}
+      sx={{
+        bgcolor: "#426B1F",
+        borderColor: "#426B1F",
+        color: "white",
+        '&:hover': { bgcolor: "#76915e", borderColor: "#76915e" },
+      }}
+    >
+      Generate Recipe
+    </Button>
+    {recipe && (
+      <Box mt={4} p={2} bgcolor="white" borderRadius={3}>
+        <Typography variant="h6">Suggested Recipe:</Typography>
+        <Typography>{recipe}</Typography>
+      </Box>
+    )}
+      
     </Box>
     </>
   )
