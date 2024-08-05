@@ -5,6 +5,7 @@ import {firestore} from '@/firebase';
 import {Box, Modal, Typography, Stack, TextField, Button, createTheme, ThemeProvider, Divider, FormControl, InputLabel, Select, MenuItem} from '@mui/material';
 import { collection, deleteDoc, getDoc, getDocs, query, setDoc, doc } from "firebase/firestore";
 import Head from 'next/head';
+import { generateRecipe } from "./api/generateRecipe";
 
 
 
@@ -78,6 +79,11 @@ export default function Home() {
     updateInventory()
   }, []) 
 
+  const getRecipe = async (ingredients) => {
+    let r = await generateRecipe(ingredients)
+    setRecipe(r) 
+  }
+
 
   const getFilteredInventory = () => {
     let sortedInventory = [...inventory]
@@ -106,33 +112,6 @@ export default function Home() {
     return sortedInventory
       
   }
-
-  
- 
-  // const generateRecipe = async (items) => {
-  //   try {
-  //     const response = await fetch('/api/generateRecipe', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ items }),
-  //     });
-
-  
-  //     const data = await response.json();
-  //     return data.recipe;
-  //   } catch (error) {
-  //     console.error('Error generating recipe:', error);
-  //     return 'Error generating recipe';
-  //   }
-  // };
-
-  // const handleGenerateRecipe = async () => {
-  //   const items = inventory.map(item => item.name); // Get item names from the inventory
-  //   const generatedRecipe = await generateRecipe(items);
-  //   setRecipe(generatedRecipe);
-  // };
  
  
 
@@ -149,7 +128,7 @@ export default function Home() {
     </Head>
     <Box 
     width="100vw" 
-    height="100vh" 
+    height="160vh" 
     bgcolor="#FAFAF5">
 
       {/* title */}
@@ -191,6 +170,7 @@ export default function Home() {
           borderRadius={3}
           mt={4}
           bgcolor ="white"
+          mb={8}
           >
             <Stack width="100%" direction="column" spacing={2} p={5}>
             <TextField 
@@ -209,6 +189,47 @@ export default function Home() {
                 setItemName('')
                 handleClose()
               }}>Add</Button>
+          </Stack>
+          </Box>
+
+          
+          <Typography
+          variant="h4" 
+          color="#000000" 
+          sx={{ fontFamily: 'Newsreader, serif'}}
+          pb={1}>
+          Generate Recipe
+          </Typography>
+
+          <Divider color="B3B3B3"/>
+          <Box 
+          width={400}
+          height={600}
+          overflow="auto"
+          border = "1px solid #B3B3B3"
+          borderRadius={3}
+          mt={4}
+          bgcolor ="white"
+          mb={7}
+          >
+            <Stack width="100%" direction="column" spacing={2} p={5}>
+            <Typography>
+              Generate a recipe based on the items in your pantry!
+            </Typography>
+            <Button 
+              sx={{bgcolor: "#426B1F", borderColor: "#426B1F", color: "white", 
+              '&:hover':{bgcolor: "#76915e", borderColor: "#76915e"}}}
+              variant="outlined" 
+              onClick = {() => {
+                const ingredients = inventory.map(item => item.name)
+                getRecipe(ingredients)
+              }}
+              >
+                Generate Recipe 
+              </Button>
+        <Typography>
+          {recipe}
+        </Typography>
           </Stack>
           </Box>
         </Box>
@@ -291,26 +312,6 @@ export default function Home() {
       </Stack>
         </Box>
       </Box>
-      
-      <Button
-      variant="outlined"
-      onClick={handleGenerateRecipe}
-      sx={{
-        bgcolor: "#426B1F",
-        borderColor: "#426B1F",
-        color: "white",
-        '&:hover': { bgcolor: "#76915e", borderColor: "#76915e" },
-      }}
-    >
-      Generate Recipe
-    </Button>
-    {recipe && (
-      <Box mt={4} p={2} bgcolor="white" borderRadius={3}>
-        <Typography variant="h6">Suggested Recipe:</Typography>
-        <Typography>{recipe}</Typography>
-      </Box>
-    )}
-      
     </Box>
     </>
   )
