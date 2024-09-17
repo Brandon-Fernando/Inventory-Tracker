@@ -5,11 +5,7 @@ import {firestore} from '@/firebase';
 import {Box, Modal, Typography, Stack, TextField, Button, createTheme, ThemeProvider, Divider, FormControl, InputLabel, Select, MenuItem} from '@mui/material';
 import { collection, deleteDoc, getDoc, getDocs, query, setDoc, doc } from "firebase/firestore";
 import Head from 'next/head';
-import { generateRecipe } from "./api/generateRecipe";
-
-
-
-
+//import { generateRecipe } from "./api/generateRecipe";
 
 
 
@@ -114,7 +110,23 @@ export default function Home() {
   }
  
  
-
+  const handleSubmit = async () => {
+    const ingredients = inventory.map(item => item.name); // Collect ingredients from the pantry
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(ingredients), // Send the ingredients to the server
+    });
+  
+    if (response.ok) {
+      const data = await response.json(); // Get the response back as JSON
+      setRecipe(data); // Set the recipe from the response
+    } else {
+      console.error('Failed to generate recipe');
+    }
+  };
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -220,16 +232,33 @@ export default function Home() {
               sx={{bgcolor: "#426B1F", borderColor: "#426B1F", color: "white", 
               '&:hover':{bgcolor: "#76915e", borderColor: "#76915e"}}}
               variant="outlined" 
-              onClick = {() => {
-                const ingredients = inventory.map(item => item.name)
-                getRecipe(ingredients)
-              }}
+              // onClick = {() => {
+              //   const ingredients = inventory.map(item => item.name)
+              //   getRecipe(ingredients)
+              // }}
+              onClick={handleSubmit}
               >
                 Generate Recipe 
               </Button>
-        <Typography>
-          {recipe}
-        </Typography>
+              {/* {recipe && recipe.length > 0 && (
+                <Box mt={4}>
+                  {recipe.map((rec, index) => (
+                    <Box key={index} mb={4}>
+                      <Typography variant="h5">{rec.title}</Typography>
+                      <Typography variant="body1">{rec.description}</Typography>
+                      <Typography variant="body2">
+                        Ingredients: {rec.ingredients_needed.join(', ')}
+                      </Typography>
+                      <Typography variant="body2">
+                        Instructions: {rec.instructions.join(', ')}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )} */}
+              <Typography>
+                {recipe.title}
+              </Typography>
           </Stack>
           </Box>
         </Box>
