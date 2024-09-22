@@ -9,7 +9,7 @@
 
 .waveContainer {
     position: absolute; /* Positions the container absolutely within the parent */
-    bottom: 0; /* Aligns the container to the bottom of the parent */
+    bottom: -1; /* Aligns the container to the bottom of the parent */
     left: 0;
     width: 100vw; /* Ensures the container spans the full width */
     height: auto; /* Allows the container height to adjust based on the SVG */
