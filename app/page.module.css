@@ -1,4 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap');
+
+
 .container {
+    font-family: 'Playfair Display', serif;
     position: relative; /* Allows the absolute positioning of child elements */
     width: 100vw;
     height: 100vh;
@@ -20,6 +24,19 @@
     width: 100%; /* Ensures the SVG covers the full width of the container */
     height: auto; /* Maintains the aspect ratio of the SVG */
 }
+  
+  /* Overlapping image container */
+  .overlappingImageContainer {
+    position: absolute;
+    bottom: 35%; /* Adjust this value to control how much the image overlaps */
+    right: 200px; /* Adjust based on desired horizontal position */
+    z-index: 1; /* Ensures it's above the wave */
+  }
+  
+  .overlappingImage {
+    width: 600px; /* Adjust the size of the image */
+    height: auto;
+  }
 
 /* Header */
 .header {
@@ -38,6 +55,18 @@
     height: auto;
 }
 
+.header a{
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    padding-bottom: 10px;
+    transition: border-bottom 0.1s ease;
+}
+
+.header a:hover{
+    border-bottom: 2px solid black;
+}
+
 /* Hero */
 .hero {
     padding-left: 100px;
@@ -48,3 +77,27 @@
     flex: 1;
     padding-bottom: 100px;
 }
+
+.hero h1{
+    font-size: 75px;
+    width: 85%;
+    margin-bottom: 0;
+}
+
+.hero p{
+    font-size: 20px;
+    width: 80%;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.hero button {
+    width: 150px;
+    font-size: 20px;
+    padding: 15px;
+    color: white;
+    background-color: black;
+    border: none;
+    border-radius: 20px;
+}
+

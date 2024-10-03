@@ -1,0 +1,67 @@
+
+
+.container {
+    font-family: 'Playfair Display', serif;
+    position: relative; /* Allows the absolute positioning of child elements */
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevents scrollbars from appearing if the SVG overflows */
+}
+
+.waveContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: auto; /* Adjust the width as needed */
+    height: auto; /* Adjust the height as needed */
+    z-index: -1; /* Ensure it's above other content */
+  }
+  
+.waveContainer img {
+    display: block;
+    width: 100%; /* Or any size based on your layout */
+    height: auto;
+}
+
+.cornerContainer{
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+}
+
+.cornerContainer img{
+    width: 450px;
+    height: auto;
+}
+
+/* Header */
+.header {
+    width: 50%;
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    gap: 100px;
+    padding: 20px;
+    align-items: center;
+    flex-shrink: 0; /* Prevent the header from shrinking */
+}
+
+.header img {
+    width: 75px;
+    height: auto;
+}
+
+.header a{
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    padding-bottom: 10px;
+    transition: border-bottom 0.1s ease;
+}
+
+.header a:hover{
+    border-bottom: 2px solid black;
+}
+  
